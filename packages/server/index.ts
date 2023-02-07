@@ -61,7 +61,7 @@ async function startServer() {
 
       }
 
-      let render: () => Promise<string>;
+      let render //: () => Promise<string>;
 
       if (!isDev()) {
         render = (await import(ssrClientPath)).render;
@@ -69,7 +69,7 @@ async function startServer() {
         render = (await vite!.ssrLoadModule(path.resolve(srcPath, 'ssr.tsx'))).render;
       }
 
-      const appHtml = await render()
+      const appHtml = await render({ path: url })
 
       const html = template.replace(`<!--ssr-outlet-->`, appHtml)
 

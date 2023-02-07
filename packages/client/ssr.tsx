@@ -1,8 +1,15 @@
-import App from './src/App'
+import { App } from './src/App'
 import { renderToString } from 'react-dom/server'
+import { StaticRouter } from 'react-router-dom/server'
 
-export function render() {
+interface IRenderProps {
+  path: string;
+}
+
+export function render({ path }: IRenderProps) {
   return renderToString(
-    <App />
+    <StaticRouter location={path}>
+      <App />
+    </StaticRouter>
   )
 }

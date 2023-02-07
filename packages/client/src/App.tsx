@@ -1,8 +1,13 @@
+import { Suspense } from 'react'
 import { useEffect } from 'react'
 import './App.css'
-import { Home } from './pages/home/ui'
+import { WithProviders } from './app/providers/withProviders'
+import { useRoutes } from 'react-router-dom'
+import { routes } from './processes/routes/routes'
+import { Spin } from 'antd'
 
-function App() {
+export function Application() {
+  const router = useRoutes(routes)
   useEffect(() => {
     const fetchServerData = async () => {
       const url = `http://localhost:${__SERVER_PORT__}/api`
@@ -13,7 +18,18 @@ function App() {
 
     fetchServerData()
   }, [])
-  return <Home/>
+
+  return (
+    <Suspense fallback={<Spin />}>
+      {router}
+    </Suspense>
+  )
 }
 
-export default App
+export const App = () => {
+  return (
+    <WithProviders>
+      <Application />
+    </WithProviders>
+  )
+}
