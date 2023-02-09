@@ -56,22 +56,27 @@ async function startServer() {
           path.resolve(srcPath, 'index.html'),
           'utf-8',
         )
-
         template = await vite!.transformIndexHtml(url, template)
-
       }
 
-      let render //: () => Promise<string>;
+      let ssr
 
       if (!isDev()) {
-        render = (await import(ssrClientPath)).render;
+        ssr = await import(ssrClientPath)
       } else {
-        render = (await vite!.ssrLoadModule(path.resolve(srcPath, 'ssr.tsx'))).render;
+        ssr = await vite!.ssrLoadModule(path.resolve(srcPath, 'ssr.tsx'))
       }
 
+      const {render, sheetFn, scopeFn} = ssr
       const appHtml = await render({ path: url })
+      const styles = await sheetFn()
+      const scope = await scopeFn()
+      const storesValues = `window.__INITIAL_STATE__ = ${JSON.stringify(scope)}`;
 
-      const html = template.replace(`<!--ssr-outlet-->`, appHtml)
+      const html = template
+        .replace(`<!--ssr-outlet-->`, appHtml)
+        .replace(`<!--ssr-styles-->`, styles)
+        .replace(`<!--ssr-state-->`, storesValues)
 
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
     } catch (e) {
