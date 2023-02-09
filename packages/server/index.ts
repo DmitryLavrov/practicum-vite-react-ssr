@@ -35,7 +35,6 @@ async function startServer() {
     res.json('👋 Howdy from the server :)')
   })
 
-
   if (!isDev()) {
     app.use('/assets', express.static(path.resolve(distPath, 'assets')))
   }
@@ -67,15 +66,17 @@ async function startServer() {
         ssr = await vite!.ssrLoadModule(path.resolve(srcPath, 'ssr.tsx'))
       }
 
-      const {render, sheetFn, scopeFn} = ssr
+      const {render, sheetFn, scopeFn, antdCacheFn} = ssr
       const appHtml = await render({ path: url })
       const styles = await sheetFn()
+      const antStyles = await antdCacheFn()
       const scope = await scopeFn()
-      const storesValues = `window.__INITIAL_STATE__ = ${JSON.stringify(scope)}`;
+      const storesValues = `window.__INITIAL_STATE__=${JSON.stringify(scope)}`;
 
       const html = template
         .replace(`<!--ssr-outlet-->`, appHtml)
         .replace(`<!--ssr-styles-->`, styles)
+        .replace(`<!--ssr-antd-->`, antStyles)
         .replace(`<!--ssr-state-->`, storesValues)
 
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
