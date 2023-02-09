@@ -12,7 +12,7 @@ export const Home = () => {
   return (
     <>
       <HomeHead>
-        Home
+        Home!
       </HomeHead>
       <Space direction='vertical'>
       <Button onClick={()=>navigate('/second')}>
